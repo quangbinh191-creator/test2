@@ -72,12 +72,12 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 3px; }
 
-        /* Định vị bằng dải mượt mà để tạo hiệu ứng chạy hạng */
+        /* Tăng duration chuyển động lên 1.2s để nhìn thấy rõ hiệu ứng bứt top lúc mở trang */
         .rank-item {
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s;
         }
         .podium-item {
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
     </style>
 </head>
@@ -108,11 +108,9 @@
             </div>
         </div>
 
-        <!-- Khối Podium (Top 3) -->
         <section id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end mb-14 px-4 sm:px-12 md:px-0 min-h-[320px]">
         </section>
 
-        <!-- Khối Bảng Danh Sách (Top 4 trở xuống) -->
         <section class="bg-slate-900/80 backdrop-blur-lg rounded-2xl border border-slate-700 shadow-2xl mb-8 overflow-hidden">
             <div class="grid grid-cols-12 gap-2 sm:gap-4 px-6 py-4 bg-slate-950/90 border-b border-slate-800 font-oswald uppercase tracking-wider text-xs sm:text-sm text-slate-300 font-bold relative z-10">
                 <div class="col-span-2 sm:col-span-1 text-center">Hạng</div>
@@ -121,7 +119,6 @@
                 <div class="col-span-2 text-center hidden sm:block">Tỉ lệ đúng</div>
                 <div class="col-span-2 text-center hidden sm:block">Tổng Điểm</div>
             </div>
-            <!-- Thay đổi sang relative định vị chiều cao động để các hàng chuyển động mượt mà bằng CSS translate -->
             <div id="rankingList" class="divide-y divide-slate-800/40 min-h-[100px] overflow-y-auto relative">
             </div>
         </section>
@@ -155,6 +152,7 @@
 <script>
     let players = [];
     let currentSearchKeyword = "";
+    let isInitialLoad = true; // Cờ kiểm tra lần đầu tải trang
 
     const URL_USER_PREDICTIONS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOu74BZum8hv_WCNc2lCqbSmV-YXWkwWTrQZ4LmAZgY8Tjj6d9DEA1h6P9E8_4qXWisZy9-atqMeUP/pub?gid=267813523&single=true&output=csv';
     const URL_MATCH_RESULTS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOu74BZum8hv_WCNc2lCqbSmV-YXWkwWTrQZ4LmAZgY8Tjj6d9DEA1h6P9E8_4qXWisZy9-atqMeUP/pub?gid=652215163&single=true&output=csv';
@@ -235,7 +233,6 @@
                     const matchResultIdx = resultHeaders.findIndex(h => h.trim().toLowerCase() === columnName.toLowerCase());
                     if (matchResultIdx === -1) continue;
 
-                    // 1. Hiện tại (Dòng 2)
                     let correctValue = officialResults[matchResultIdx]?.trim() || '---';
                     if (correctValue !== '' && correctValue !== '---') {
                         if (userValue.toLowerCase() === correctValue.toLowerCase()) {
@@ -245,7 +242,6 @@
                         }
                     }
 
-                    // 2. Quá Khứ (Dòng 10)
                     let prevCorrectValue = previousResults[matchResultIdx]?.trim() || '---';
                     if (prevCorrectValue !== '' && prevCorrectValue !== '---') {
                         if (userValue.toLowerCase() === prevCorrectValue.toLowerCase()) {
@@ -296,7 +292,19 @@
             }
 
             players = calculatedPlayers;
-            renderLeaderboard();
+
+            if (isInitialLoad && hasPrevData) {
+                // Bước 1: Render BXH cũ trước khi mở trang
+                renderLeaderboard(true); 
+                
+                // Bước 2: Sau 500ms kích hoạt hiệu ứng trượt bứt top lên BXH mới
+                setTimeout(() => {
+                    isInitialLoad = false;
+                    renderLeaderboard(false);
+                }, 500);
+            } else {
+                renderLeaderboard(false);
+            }
 
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu từ Google Sheets:", error);
@@ -318,14 +326,24 @@
         return `<span class="text-slate-500 text-xs font-sans ml-1"><i class="fa-solid fa-minus text-[10px]"></i></span>`;
     }
 
-    function renderLeaderboard() {
+    function renderLeaderboard(forceRenderOld = false) {
         let sortedPlayers = [...players];
         
-        sortedPlayers.sort((a, b) => {
-            if (b.score !== a.score) return b.score - a.score;
-            if (b.matches !== a.matches) return b.matches - a.matches;
-            return a.id - b.id;
-        });
+        if (forceRenderOld) {
+            // Sắp xếp theo dữ liệu Cũ (Dòng 10)
+            sortedPlayers.sort((a, b) => {
+                if (b.prevScore !== a.prevScore) return b.prevScore - a.prevScore;
+                if (b.prevMatches !== a.prevMatches) return b.prevMatches - a.prevMatches;
+                return a.id - b.id;
+            });
+        } else {
+            // Sắp xếp theo dữ liệu Mới (Dòng 2)
+            sortedPlayers.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                if (b.matches !== a.matches) return b.matches - a.matches;
+                return a.id - b.id;
+            });
+        }
         
         let rankedData = sortedPlayers.map((p, idx) => {
             const currentRank = idx + 1;
@@ -333,7 +351,8 @@
             if (p.prevRank !== null) {
                 rankChange = p.prevRank - currentRank;
             }
-            return { ...p, actualRank: currentRank, rankChange: rankChange };
+            // Nếu đang ép hiển thị bảng cũ thì tạm thời để lượng đổi bậc bằng 0
+            return { ...p, actualRank: currentRank, rankChange: forceRenderOld ? 0 : rankChange };
         });
 
         if (currentSearchKeyword !== "") {
@@ -343,15 +362,15 @@
         const top3 = rankedData.filter(p => p.actualRank <= 3);
         const individualList = rankedData.filter(p => p.actualRank > 3);
 
-        renderPodium(top3);
-        renderTableRows(individualList, rankedData.length === 0);
+        renderPodium(top3, forceRenderOld);
+        renderTableRows(individualList, rankedData.length === 0, forceRenderOld);
     }
 
     function getChibiAvatarUrl(seed, bg) {
         return `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${encodeURIComponent(seed)}&backgroundColor=${bg}`;
     }
 
-    function renderPodium(top3Data) {
+    function renderPodium(top3Data, forceRenderOld) {
         const podiumContainer = document.getElementById('podiumContainer');
         podiumContainer.innerHTML = '';
 
@@ -378,8 +397,11 @@
             let rankLabel = "";
             let shimmerLayer = "";
             
+            // Lấy điểm và số trận tùy vào trạng thái cũ/mới
+            const displayScore = forceRenderOld ? player.prevScore : player.score;
+            const displayMatches = forceRenderOld ? player.prevMatches : player.matches;
+
             if(player.actualRank === 1) {
-                // Thêm hiệu ứng vinh quang rực rỡ bậc nhất cho TOP 1 khi bứt top hoặc giữ ngôi vương
                 cardStyle = "bg-gradient-to-b from-amber-950/90 to-slate-950/95 border-amber-400 glow-gold-brilliant scale-105 md:scale-110 z-10 p-8";
                 badgeStyle = "from-amber-500 to-yellow-400 text-slate-950 shadow-yellow-500/50 shadow-md";
                 rankLabel = `<i class="fa-solid fa-crown text-base text-red-600 animate-bounce"></i> <span class="tracking-widest">VƯƠNG GIẢ TOP 1</span> <i class="fa-solid fa-star text-xs text-yellow-300 animate-spin"></i>`;
@@ -412,18 +434,18 @@
                 </h3>
                 
                 <p class="text-slate-300 text-xs mb-3 font-semibold z-10 relative">
-                    Đúng <span class="text-green-400">${player.matches}/${player.totalMatches}</span> trận (${player.winRate}%)
+                    Đúng <span class="text-green-400">${displayMatches}/${player.totalMatches}</span> trận (${player.winRate}%)
                 </p>
 
                 <div class="inline-block bg-slate-900/90 px-4 py-1.5 rounded-xl border border-slate-700 shadow-inner z-10 relative">
-                    <span class="font-oswald text-xl font-bold text-yellow-400 tracking-wide">${player.score.toLocaleString()} <span class="text-xs text-slate-300 font-sans">Điểm</span></span>
+                    <span class="font-oswald text-xl font-bold text-yellow-400 tracking-wide">${displayScore.toLocaleString()} <span class="text-xs text-slate-300 font-sans">Điểm</span></span>
                 </div>
             `;
             podiumContainer.appendChild(div);
         });
     }
 
-    function renderTableRows(listData, isEmpty) {
+    function renderTableRows(listData, isEmpty, forceRenderOld) {
         const rankingList = document.getElementById('rankingList');
         
         if (isEmpty) {
@@ -432,14 +454,12 @@
             return;
         }
 
-        // Đo chiều cao mỗi hàng chuẩn để tính toán vị trí chuyển động trượt lên (72px)
         const rowHeight = 72; 
         rankingList.style.height = `${listData.length * rowHeight}px`;
 
         listData.forEach((player, index) => {
             let rowDiv = document.getElementById(`player-row-${player.name.replace(/\s+/g, '-')}`);
             
-            // Nếu hàng chưa có trong DOM, tạo mới hoàn toàn
             if (!rowDiv) {
                 rowDiv = document.createElement('div');
                 rowDiv.id = `player-row-${player.name.replace(/\s+/g, '-')}`;
@@ -447,11 +467,13 @@
                 rankingList.appendChild(rowDiv);
             }
 
-            // Đặt vị trí top động để kích hoạt hiệu ứng di chuyển (Transition Transform) khi thay hạng
+            // Đồng bộ dịch chuyển vị trí Y dựa trên thứ tự index mới/cũ nhận được
             rowDiv.style.transform = `translateY(${index * rowHeight}px)`;
             rowDiv.style.height = `${rowHeight}px`;
 
-            // Cập nhật nội dung bên trong hàng
+            const displayScore = forceRenderOld ? player.prevScore : player.score;
+            const displayMatches = forceRenderOld ? player.prevMatches : player.matches;
+
             rowDiv.innerHTML = `
                 <div class="col-span-2 sm:col-span-1 text-center font-oswald font-bold text-lg text-slate-400 flex items-center justify-center gap-1">
                     <span>${player.actualRank < 10 ? '0' + player.actualRank : player.actualRank}</span>
@@ -464,23 +486,22 @@
                     <span class="font-semibold truncate text-slate-100 group-hover:text-yellow-400 transition-colors">${player.name}</span>
                 </div>
                 <div class="col-span-4 sm:col-span-2 text-center font-semibold text-slate-200">
-                    <span class="text-emerald-400">${player.matches}</span> / ${player.totalMatches}
+                    <span class="text-emerald-400">${displayMatches}</span> / ${player.totalMatches}
                 </div>
                 <div class="col-span-2 text-center font-semibold text-amber-400 hidden sm:block">
                     ${player.winRate}%
                 </div>
                 <div class="col-span-2 text-right font-oswald font-bold text-base text-yellow-400 tracking-wide pr-2 hidden sm:block">
-                    ${player.score.toLocaleString()}
+                    ${displayScore.toLocaleString()}
                 </div>
                 
                 <div class="col-span-12 flex justify-between items-center sm:hidden pt-1 border-t border-slate-800/20 text-[10px] text-slate-400">
                     <span>Tỉ lệ: <b class="text-amber-400">${player.winRate}%</b></span>
-                    <span>Tổng điểm: <b class="text-yellow-400">${player.score} Điểm</b></span>
+                    <span>Tổng điểm: <b class="text-yellow-400">${displayScore} Điểm</b></span>
                 </div>
             `;
         });
 
-        // Xóa những hàng của người chơi không còn nằm trong danh sách tìm kiếm/lọc hiện tại
         const validIds = listData.map(player => `player-row-${player.name.replace(/\s+/g, '-')}`);
         Array.from(rankingList.children).forEach(child => {
             if (child.id && !validIds.includes(child.id)) {
@@ -491,11 +512,12 @@
 
     function filterPlayers() {
         currentSearchKeyword = document.getElementById('searchKeyword').value.trim();
-        renderLeaderboard();
+        // Khi người dùng đang tìm kiếm thủ công, không ép tải dữ liệu cũ để tránh giật lag
+        renderLeaderboard(false);
     }
 
     initData();
-    window.addEventListener('resize', renderLeaderboard);
+    window.addEventListener('resize', () => renderLeaderboard(false));
 </script>
 </body>
 </html>
