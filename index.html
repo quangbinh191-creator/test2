@@ -51,7 +51,7 @@
         }
         .frost-bg {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 25%, transparent 25%),
-                        linear-gradient(225deg, rgba(147, 51, 234, 0.1) 25%, transparent 25__);
+                        linear-gradient(225deg, rgba(147, 51, 234, 0.1) 25%, transparent 25%);
             background-size: 8px 8px;
             animation: frostMist 3s infinite linear;
         }
@@ -173,6 +173,7 @@
             </div>
         </section>
 
+        <!-- ================= FOOTER ĐẦY ĐỦ NÚT TRA CỨU ================= -->
         <footer class="text-center space-y-6 relative z-10">
             <div class="inline-block bg-gradient-to-r from-red-600 to-amber-500 p-[2px] rounded-xl shadow-lg glow-fire animate-pulse w-full max-w-3xl mx-auto">
                 <div class="bg-[#070b19] px-6 py-4 rounded-xl text-left sm:text-center space-y-3">
@@ -183,6 +184,16 @@
                         <p><b class="text-red-400">Lượt 1:</b> Các trận từ 12 - 18/6 | Thời gian bình chọn: từ 05/6 đến 10/6 (Chốt deadline: 15:00)</p>
                         <p><b class="text-amber-400">Lượt 2:</b> Các trận từ 19 - 24/6 | Thời gian bình chọn: từ 17 - 18/6 (Chốt deadline: 15:00)</p>
                         <p><b class="text-emerald-400">Lượt 3:</b> Các trận từ 25 - 28/6 | Thời gian bình chọn: từ 23 - 24/6 (Chốt deadline: 15:00)</p>
+                    </div>
+                    
+                    <!-- Dòng nút tra cứu đã được khôi phục nguyên vẹn tại đây -->
+                    <div class="pt-2 text-center">
+                        <a href="https://quangbinh191-creator.github.io/tracuuwc2026/" 
+                           target="_blank" 
+                           class="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 font-black py-2.5 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-[0.98] shadow-lg shadow-yellow-500/20 text-xs sm:text-sm uppercase tracking-wider">
+                            <i class="fa-solid fa-magnifying-glass-chart text-base"></i>
+                            Tra cứu thông tin đã dự đoán tại đây
+                        </a>
                     </div>
                 </div>
             </div>
@@ -314,7 +325,6 @@
                 });
             }
 
-            // Sắp xếp dữ liệu cũ
             if (hasPrevData) {
                 let prevSorted = [...calculatedPlayers].sort((a, b) => {
                     if (b.prevScore !== a.prevScore) return b.prevScore - a.prevScore;
@@ -328,7 +338,6 @@
                 });
             }
 
-            // Sắp xếp dữ liệu mới
             let nextSorted = [...calculatedPlayers].sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 if (b.matches !== a.matches) return b.matches - a.matches;
@@ -342,7 +351,6 @@
 
             players = calculatedPlayers;
 
-            // XỬ LÝ QUÉT EVENT TĂNG / GIẢM HẠNG KỶ LỤC NHẤT
             if (isInitialLoad && hasPrevData) {
                 let maxLeapPlayer = null;
                 let maxLeapValue = -1;
@@ -365,7 +373,6 @@
                     }
                 });
 
-                // Cập nhật giao diện khối vinh danh / chia buồn
                 if ((maxLeapPlayer && maxLeapValue > 0) || (maxFallPlayer && maxFallValue > 0)) {
                     showSpecialEventsBanner(maxLeapPlayer, maxLeapValue, maxFallPlayer, maxFallValue);
                 }
@@ -388,7 +395,6 @@
     function showSpecialEventsBanner(leapP, leapV, fallP, fallV) {
         const container = document.getElementById('specialEventsContainer');
         
-        // 1. Gán người bứt tốc
         if (leapP && leapV > 0) {
             document.getElementById('leapAvatar').src = getChibiAvatarUrl(leapP.seed, leapP.bg);
             if(leapP.actualRank === 1) {
@@ -400,7 +406,6 @@
             document.getElementById('leapSubtext').innerText = `Hạng cũ: ${leapP.prevRank} ➔ Hạng mới: ${leapP.actualRank}`;
         }
 
-        // 2. Gán người xuống hạng
         if (fallP && fallV > 0) {
             document.getElementById('fallAvatar').src = getChibiAvatarUrl(fallP.seed, fallP.bg);
             document.getElementById('fallName').innerText = fallP.name;
