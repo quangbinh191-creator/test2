@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Xếp Hạng Cao Thủ Dự Đoán World Cup 2026tes</title>
+    <title>Bảng Xếp Hạng Cao Thủ Dự Đoán World Cup 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,25 +21,27 @@
             background-attachment: fixed;
             background-color: #070b19;
         }
-        .font-oswald {
-            font-family: 'Oswald', sans-serif;
-        }
-        .text-glow-gold {
-            text-shadow: 0 0 12px rgba(245, 158, 11, 0.7), 0 0 25px rgba(245, 158, 11, 0.4);
-        }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
+        .text-glow-gold { text-shadow: 0 0 12px rgba(245, 158, 11, 0.7), 0 0 25px rgba(245, 158, 11, 0.4); }
+        .text-glow-neon { text-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 0 20px rgba(56, 189, 248, 0.4); }
         
         @keyframes brilliantGlow {
-            0%, 100% {
-                box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), 0 0 40px rgba(245, 158, 11, 0.3), inset 0 0 15px rgba(245, 158, 11, 0.3);
-                border-color: rgba(245, 158, 11, 0.8);
-            }
-            50% {
-                box-shadow: 0 0 50px rgba(251, 191, 36, 1), 0 0 80px rgba(239, 68, 68, 0.5), inset 0 0 25px rgba(251, 191, 36, 0.5);
-                border-color: rgba(251, 191, 36, 1);
-            }
+            0%, 100% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.3); border-color: rgba(245, 158, 11, 0.8); }
+            50% { box-shadow: 0 0 50px rgba(251, 191, 36, 1), inset 0 0 25px rgba(251, 191, 36, 0.5); border-color: rgba(251, 191, 36, 1); }
         }
-        .glow-gold-brilliant {
-            animation: brilliantGlow 2s infinite ease-in-out;
+        .glow-gold-brilliant { animation: brilliantGlow 2s infinite ease-in-out; }
+
+        /* Hiệu ứng tia chớp / bứt tốc anime cho người tăng hạng nhiều nhất */
+        @keyframes speedLines {
+            0% { background-position: 0% 0%; opacity: 0.3; }
+            50% { opacity: 0.6; }
+            100% { background-position: 100% 100%; opacity: 0.3; }
+        }
+        .speedline-bg {
+            background: linear-gradient(45deg, rgba(239, 68, 68, 0.15) 25%, transparent 25%), 
+                        linear-gradient(-45deg, rgba(245, 158, 11, 0.15) 25%, transparent 25%);
+            background-size: 4px 4px;
+            animation: speedLines 0.5s infinite linear;
         }
 
         @keyframes lightShine {
@@ -47,22 +49,9 @@
             30%, 100% { left: 150%; }
         }
         .top1-shimmer {
-            position: absolute;
-            top: 0;
-            left: -150%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0) 30%,
-                rgba(255, 215, 0, 0.2) 40%,
-                rgba(255, 255, 255, 0.6) 50%,
-                rgba(255, 215, 0, 0.2) 60%,
-                transparent 70%
-            );
-            transform: skewX(-25deg);
-            animation: lightShine 3.5s infinite ease-in-out;
+            position: absolute; top: 0; left: -150%; width: 100%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0) 30%, rgba(255, 215, 0, 0.2) 40%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 215, 0, 0.2) 60%, transparent 70%);
+            transform: skewX(-25deg); animation: lightShine 3.5s infinite ease-in-out;
         }
 
         .glow-silver { box-shadow: 0 0 15px rgba(255, 255, 255, 0.25); }
@@ -72,34 +61,66 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 3px; }
 
-        /* Tăng duration chuyển động lên 1.2s để nhìn thấy rõ hiệu ứng bứt top lúc mở trang */
-        .rank-item {
-            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s;
-        }
-        .podium-item {
-            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        .rank-item { transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s; }
+        .podium-item { transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
 
     <div class="max-w-5xl mx-auto">
         
-        <header class="text-center mb-10 relative">
+        <header class="text-center mb-8 relative">
             <div class="inline-flex items-center justify-center gap-4 mb-3 group relative">
                 <i class="fa-solid fa-bolt text-3xl sm:text-4xl text-orange-500 animate-bounce"></i>
                 <i class="fa-solid fa-soccer-ball text-4xl sm:text-5xl text-amber-400 text-glow-gold animate-spin" style="animation-duration: 8s;"></i>
                 <i class="fa-solid fa-bolt text-3xl sm:text-4xl text-red-500 animate-bounce"></i>
             </div>
             <h1 class="font-oswald text-3xl sm:text-5xl lg:text-6xl font-bold tracking-wider text-amber-400 text-glow-gold uppercase italic">
-                Bảng Xếp Hạng Cao Thủ Dự Đoán World Cup 2026 tes
+                Bảng Xếp Hạng Cao Thủ Dự Đoán World Cup 2026
             </h1>
             <p class="text-yellow-400 font-bold uppercase tracking-widest text-xs sm:text-sm mt-3 flex items-center justify-center gap-2 bg-black/40 px-4 py-1 rounded-full inline-block mx-auto">
                 <span class="inline-block w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                thần rùa tương trợ - Vòng Bảng
+                thần rùa tương trợ - Vtes
             </p>
         </header>
 
+        <section id="epicLeapContainer" class="hidden mb-10 transform scale-95 opacity-0 transition-all duration-700">
+            <div class="bg-gradient-to-r from-red-900/40 via-amber-950/60 to-slate-900/80 rounded-2xl border-2 border-orange-500/80 shadow-2xl overflow-hidden p-6 relative">
+                <div class="absolute inset-0 speedline-bg pointer-events-none opacity-40 z-0"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="relative">
+                            <div class="w-24 h-24 rounded-2xl bg-slate-950 border-2 border-yellow-400 p-1 shadow-2xl flex items-center justify-center animate-pulse">
+                                <img id="leapAvatar" src="" class="w-full h-full object-cover rounded-xl" alt="Leap User">
+                            </div>
+                            <span class="absolute -bottom-3 -right-3 bg-red-600 border border-yellow-400 font-oswald font-black text-sm px-2.5 py-0.5 rounded-full shadow text-yellow-300">
+                                HOT
+                            </span>
+                        </div>
+                        <div>
+                            <span class="bg-gradient-to-r from-red-600 to-orange-500 text-slate-950 text-xs font-black px-3 py-1 rounded-md uppercase tracking-wider font-oswald shadow">
+                                🔥 SIÊU CẤP BỨT TỐC TUẦN NÀY
+                            </span>
+                            <h2 id="leapName" class="font-oswald text-2xl sm:text-4xl font-bold tracking-wide text-yellow-400 text-glow-gold uppercase mt-1">
+                                --
+                            </h2>
+                            <p class="text-xs sm:text-sm text-slate-300 font-medium">
+                                Vừa tạo nên một cú lội ngược dòng chấn động toàn bộ bảng xếp hạng!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-950/80 border border-orange-500/40 px-6 py-4 rounded-xl text-center min-w-[200px] shadow-inner backdrop-blur-md">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest font-oswald">Thăng tiến kỷ lục</p>
+                        <div id="leapCount" class="font-oswald text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-yellow-300 tracking-tighter my-1 animate-bounce">
+                            +0 BẬC
+                        </div>
+                        <p id="leapSubtext" class="text-[11px] text-slate-400 italic">Hạng cũ: -- ➔ Hạng mới: --</p>
+                    </div>
+                </div>
+            </div>
+        </section>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center mb-8 bg-slate-900/80 backdrop-blur-md p-4 rounded-xl border border-slate-700 shadow-xl">
             <div class="sm:col-span-12 relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
@@ -134,7 +155,6 @@
                         <p><b class="text-amber-400">Lượt 2:</b> Các trận từ 19 - 24/6 | Thời gian bình chọn: từ 17 - 18/6 (Chốt deadline: 15:00)</p>
                         <p><b class="text-emerald-400">Lượt 3:</b> Các trận từ 25 - 28/6 | Thời gian bình chọn: từ 23 - 24/6 (Chốt deadline: 15:00)</p>
                     </div>
-                    
                     <div class="pt-2 text-center">
                         <a href="https://quangbinh191-creator.github.io/tracuuwc2026/" 
                            target="_blank" 
@@ -152,7 +172,7 @@
 <script>
     let players = [];
     let currentSearchKeyword = "";
-    let isInitialLoad = true; // Cờ kiểm tra lần đầu tải trang
+    let isInitialLoad = true; 
 
     const URL_USER_PREDICTIONS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOu74BZum8hv_WCNc2lCqbSmV-YXWkwWTrQZ4LmAZgY8Tjj6d9DEA1h6P9E8_4qXWisZy9-atqMeUP/pub?gid=267813523&single=true&output=csv';
     const URL_MATCH_RESULTS = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQOu74BZum8hv_WCNc2lCqbSmV-YXWkwWTrQZ4LmAZgY8Tjj6d9DEA1h6P9E8_4qXWisZy9-atqMeUP/pub?gid=652215163&single=true&output=csv';
@@ -216,12 +236,10 @@
             for (let i = 1; i < userRows.length; i++) {
                 const currentRow = userRows[i];
                 const nickname = currentRow[idxNickname]?.trim();
-                
                 if (!nickname) continue;
 
                 let totalScore = 0;
                 let correctMatches = 0;
-                
                 let prevScore = 0;
                 let prevMatches = 0;
 
@@ -270,38 +288,65 @@
                     prevMatches: prevMatches,
                     seed: nickname,
                     bg: bg,
-                    prevRank: null
+                    prevRank: null,
+                    actualRank: null
                 });
             }
 
+            // Sắp xếp bảng cũ để định vị vị trí gốc
             if (hasPrevData) {
                 let prevSorted = [...calculatedPlayers].sort((a, b) => {
                     if (b.prevScore !== a.prevScore) return b.prevScore - a.prevScore;
                     if (b.prevMatches !== a.prevMatches) return b.prevMatches - a.prevMatches;
                     return a.id - b.id;
                 });
-                
-                let prevRanksMap = {};
-                prevSorted.forEach((p, idx) => {
-                    prevRanksMap[p.name] = idx + 1;
-                });
-                
+                prevSorted.forEach((p, idx) => { p.prevRank = idx + 1; });
                 calculatedPlayers.forEach(p => {
-                    p.prevRank = prevRanksMap[p.name] || null;
+                    const match = prevSorted.find(o => o.name === p.name);
+                    p.prevRank = match ? match.prevRank : null;
                 });
             }
 
+            // Tính toán thứ hạng mới chuẩn bị đưa vào so sánh
+            let nextSorted = [...calculatedPlayers].sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                if (b.matches !== a.matches) return b.matches - a.matches;
+                return a.id - b.id;
+            });
+            nextSorted.forEach((p, idx) => { p.actualRank = idx + 1; });
+            calculatedPlayers.forEach(p => {
+                const match = nextSorted.find(o => o.name === p.name);
+                p.actualRank = match ? match.actualRank : null;
+            });
+
             players = calculatedPlayers;
 
+            // XỬ LÝ TÌM KIẾM NGƯỜI BỨT TỐC MẠNH NHẤT
             if (isInitialLoad && hasPrevData) {
-                // Bước 1: Render BXH cũ trước khi mở trang
+                let maxLeapPlayer = null;
+                let maxLeapValue = -1;
+
+                players.forEach(p => {
+                    if (p.prevRank && p.actualRank) {
+                        let leap = p.prevRank - p.actualRank; // Dương tức là tăng hạng
+                        if (leap > maxLeapValue) {
+                            maxLeapValue = leap;
+                            maxLeapPlayer = p;
+                        }
+                    }
+                });
+
+                // Chỉ hiện khung đặc biệt nếu có người tăng tối thiểu ít nhất từ 1 hạng trở lên
+                if (maxLeapPlayer && maxLeapValue > 0) {
+                    showEpicLeapBanner(maxLeapPlayer, maxLeapValue);
+                }
+
+                // Chạy hiệu ứng trượt hạng
                 renderLeaderboard(true); 
-                
-                // Bước 2: Sau 500ms kích hoạt hiệu ứng trượt bứt top lên BXH mới
                 setTimeout(() => {
                     isInitialLoad = false;
                     renderLeaderboard(false);
-                }, 500);
+                }, 800);
             } else {
                 renderLeaderboard(false);
             }
@@ -310,6 +355,27 @@
             console.error("Lỗi khi tải dữ liệu từ Google Sheets:", error);
             document.getElementById('rankingList').innerHTML = `<div class="text-center py-10 text-red-400 italic">Đang gặp lỗi kết nối với Google Sheets công khai. Vui lòng kiểm tra lại cấu hình chia sẻ!</div>`;
         }
+    }
+
+    function showEpicLeapBanner(player, leapValue) {
+        const banner = document.getElementById('epicLeapContainer');
+        document.getElementById('leapAvatar').src = getChibiAvatarUrl(player.seed, player.bg);
+        
+        // Thêm biểu tượng đặc biệt nếu người bứt tốc đạt hẳn Top 1 vinh quang luôn
+        if(player.actualRank === 1) {
+            document.getElementById('leapName').innerHTML = `<i class="fa-solid fa-crown text-amber-400 animate-bounce mr-2"></i>${player.name} <span class="text-xs text-red-400 font-sans font-bold border border-red-500/50 px-1.5 py-0.5 rounded ml-2 bg-red-950/40">CHIẾM NGÔI VƯƠNG!</span>`;
+        } else {
+            document.getElementById('leapName').innerText = player.name;
+        }
+
+        document.getElementById('leapCount').innerText = `+${leapValue} BẬC`;
+        document.getElementById('leapSubtext').innerText = `Hạng cũ: Đứng thứ ${player.prevRank} ➔ Hạng mới: Đứng thứ ${player.actualRank}`;
+        
+        banner.classList.remove('hidden');
+        setTimeout(() => {
+            banner.classList.remove('scale-95', 'opacity-0');
+            banner.classList.add('scale-100', 'opacity-100');
+        }, 100);
     }
 
     function initData() {
@@ -330,14 +396,12 @@
         let sortedPlayers = [...players];
         
         if (forceRenderOld) {
-            // Sắp xếp theo dữ liệu Cũ (Dòng 10)
             sortedPlayers.sort((a, b) => {
                 if (b.prevScore !== a.prevScore) return b.prevScore - a.prevScore;
                 if (b.prevMatches !== a.prevMatches) return b.prevMatches - a.prevMatches;
                 return a.id - b.id;
             });
         } else {
-            // Sắp xếp theo dữ liệu Mới (Dòng 2)
             sortedPlayers.sort((a, b) => {
                 if (b.score !== a.score) return b.score - a.score;
                 if (b.matches !== a.matches) return b.matches - a.matches;
@@ -346,21 +410,21 @@
         }
         
         let rankedData = sortedPlayers.map((p, idx) => {
-            const currentRank = idx + 1;
+            const displayRank = idx + 1;
             let rankChange = 0;
-            if (p.prevRank !== null) {
-                rankChange = p.prevRank - currentRank;
+            if (p.prevRank !== null && p.actualRank !== null) {
+                rankChange = p.prevRank - p.actualRank;
             }
-            // Nếu đang ép hiển thị bảng cũ thì tạm thời để lượng đổi bậc bằng 0
-            return { ...p, actualRank: currentRank, rankChange: forceRenderOld ? 0 : rankChange };
+            return { ...p, currentDisplayRank: displayRank, rankChange: forceRenderOld ? 0 : rankChange };
         });
 
         if (currentSearchKeyword !== "") {
             rankedData = rankedData.filter(p => p.name.toLowerCase().includes(currentSearchKeyword.toLowerCase()));
         }
 
-        const top3 = rankedData.filter(p => p.actualRank <= 3);
-        const individualList = rankedData.filter(p => p.actualRank > 3);
+        // Tách Top 3 dựa trên bảng xếp hạng đang hiển thị lúc đó
+        const top3 = rankedData.filter(p => p.currentDisplayRank <= 3);
+        const individualList = rankedData.filter(p => p.currentDisplayRank > 3);
 
         renderPodium(top3, forceRenderOld);
         renderTableRows(individualList, rankedData.length === 0, forceRenderOld);
@@ -377,9 +441,9 @@
         if(top3Data.length === 0) return;
 
         let displayOrder = [];
-        const rank1 = top3Data.find(p => p.actualRank === 1);
-        const rank2 = top3Data.find(p => p.actualRank === 2);
-        const rank3 = top3Data.find(p => p.actualRank === 3);
+        const rank1 = top3Data.find(p => p.currentDisplayRank === 1);
+        const rank2 = top3Data.find(p => p.currentDisplayRank === 2);
+        const rank3 = top3Data.find(p => p.currentDisplayRank === 3);
 
         if (window.innerWidth >= 768) {
             if (rank2) displayOrder.push(rank2);
@@ -397,16 +461,16 @@
             let rankLabel = "";
             let shimmerLayer = "";
             
-            // Lấy điểm và số trận tùy vào trạng thái cũ/mới
             const displayScore = forceRenderOld ? player.prevScore : player.score;
             const displayMatches = forceRenderOld ? player.prevMatches : player.matches;
 
-            if(player.actualRank === 1) {
+            if(player.currentDisplayRank === 1) {
+                // Hiệu ứng hào quang vinh quang cho vị trí Top 1
                 cardStyle = "bg-gradient-to-b from-amber-950/90 to-slate-950/95 border-amber-400 glow-gold-brilliant scale-105 md:scale-110 z-10 p-8";
                 badgeStyle = "from-amber-500 to-yellow-400 text-slate-950 shadow-yellow-500/50 shadow-md";
                 rankLabel = `<i class="fa-solid fa-crown text-base text-red-600 animate-bounce"></i> <span class="tracking-widest">VƯƠNG GIẢ TOP 1</span> <i class="fa-solid fa-star text-xs text-yellow-300 animate-spin"></i>`;
                 shimmerLayer = `<div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-0"><div class="top1-shimmer"></div></div>`;
-            } else if (player.actualRank === 2) {
+            } else if (player.currentDisplayRank === 2) {
                 cardStyle = "bg-slate-950/90 border-slate-400 glow-silver p-6";
                 badgeStyle = "bg-slate-400 text-slate-950";
                 rankLabel = `<i class="fa-solid fa-medal mr-1"></i> Top 2 Cao Thủ`;
@@ -427,7 +491,7 @@
                     <div class="w-20 h-20 mx-auto rounded-2xl overflow-hidden shadow-lg border border-slate-700 bg-slate-900 flex items-center justify-center">
                         <img src="${getChibiAvatarUrl(player.seed, player.bg)}" alt="${player.name}" class="w-full h-full object-cover">
                     </div>
-                    <span class="absolute bottom-0 right-0 ${badgeStyle.split(' ')[0]} text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border border-slate-950 shadow z-10">${player.actualRank}</span>
+                    <span class="absolute bottom-0 right-0 ${badgeStyle.split(' ')[0]} text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border border-slate-950 shadow z-10">${player.currentDisplayRank}</span>
                 </div>
                 <h3 class="font-bold text-lg text-slate-100 truncate group-hover:text-yellow-400 transition-colors z-10 relative px-2 flex items-center justify-center gap-1">
                     ${player.name} ${getRankChangeHTML(player.rankChange)}
@@ -467,7 +531,6 @@
                 rankingList.appendChild(rowDiv);
             }
 
-            // Đồng bộ dịch chuyển vị trí Y dựa trên thứ tự index mới/cũ nhận được
             rowDiv.style.transform = `translateY(${index * rowHeight}px)`;
             rowDiv.style.height = `${rowHeight}px`;
 
@@ -476,7 +539,7 @@
 
             rowDiv.innerHTML = `
                 <div class="col-span-2 sm:col-span-1 text-center font-oswald font-bold text-lg text-slate-400 flex items-center justify-center gap-1">
-                    <span>${player.actualRank < 10 ? '0' + player.actualRank : player.actualRank}</span>
+                    <span>${player.currentDisplayRank < 10 ? '0' + player.currentDisplayRank : player.currentDisplayRank}</span>
                     ${getRankChangeHTML(player.rankChange)}
                 </div>
                 <div class="col-span-6 sm:col-span-5 flex items-center gap-3">
@@ -512,7 +575,6 @@
 
     function filterPlayers() {
         currentSearchKeyword = document.getElementById('searchKeyword').value.trim();
-        // Khi người dùng đang tìm kiếm thủ công, không ép tải dữ liệu cũ để tránh giật lag
         renderLeaderboard(false);
     }
 
