@@ -27,9 +27,6 @@
         .text-glow-gold {
             text-shadow: 0 0 12px rgba(245, 158, 11, 0.7), 0 0 25px rgba(245, 158, 11, 0.4);
         }
-        .glow-gold {
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.45), inset 0 0 15px rgba(245, 158, 11, 0.2);
-        }
         
         @keyframes brilliantGlow {
             0%, 100% {
@@ -74,6 +71,14 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 3px; }
+
+        /* Định vị bằng dải mượt mà để tạo hiệu ứng chạy hạng */
+        .rank-item {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+        }
+        .podium-item {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
@@ -103,18 +108,21 @@
             </div>
         </div>
 
-        <section id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end mb-14 px-4 sm:px-12 md:px-0">
+        <!-- Khối Podium (Top 3) -->
+        <section id="podiumContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end mb-14 px-4 sm:px-12 md:px-0 min-h-[320px]">
         </section>
 
+        <!-- Khối Bảng Danh Sách (Top 4 trở xuống) -->
         <section class="bg-slate-900/80 backdrop-blur-lg rounded-2xl border border-slate-700 shadow-2xl mb-8 overflow-hidden">
-            <div class="grid grid-cols-12 gap-2 sm:gap-4 px-6 py-4 bg-slate-950/90 border-b border-slate-800 font-oswald uppercase tracking-wider text-xs sm:text-sm text-slate-300 font-bold">
+            <div class="grid grid-cols-12 gap-2 sm:gap-4 px-6 py-4 bg-slate-950/90 border-b border-slate-800 font-oswald uppercase tracking-wider text-xs sm:text-sm text-slate-300 font-bold relative z-10">
                 <div class="col-span-2 sm:col-span-1 text-center">Hạng</div>
                 <div class="col-span-6 sm:col-span-5">Tên Cao Thủ</div>
                 <div class="col-span-4 sm:col-span-2 text-center">Đúng / Tổng trận</div>
                 <div class="col-span-2 text-center hidden sm:block">Tỉ lệ đúng</div>
                 <div class="col-span-2 text-center hidden sm:block">Tổng Điểm</div>
             </div>
-            <div id="rankingList" class="divide-y divide-slate-800 max-h-[480px] overflow-y-auto">
+            <!-- Thay đổi sang relative định vị chiều cao động để các hàng chuyển động mượt mà bằng CSS translate -->
+            <div id="rankingList" class="divide-y divide-slate-800/40 min-h-[100px] overflow-y-auto relative">
             </div>
         </section>
 
@@ -179,12 +187,11 @@
             const idxNickname = userHeaders.findIndex(h => h.trim().toLowerCase() === 'biệt danh');
             
             const resultHeaders = resultRows[0];
-            const officialResults = resultRows[1] || [];   // Dòng 2: Kết quả hiện tại mới cập nhật
-            const previousResults = resultRows[9] || [];   // Dòng 10 (Index 9): Kết quả chưa cập nhật (Cũ)
+            const officialResults = resultRows[1] || [];   
+            const previousResults = resultRows[9] || [];   
             
             const maxColumns = Math.min(79, userHeaders.length);
             
-            // --- ĐẾM TỔNG SỐ TRẬN THỰC TẾ HIỆN TẠI ĐÃ CÓ KẾT QUẢ ---
             let totalAvailableMatches = 0;
             for (let colIdx = 0; colIdx < maxColumns; colIdx++) {
                 const columnName = userHeaders[colIdx]?.trim() || '';
@@ -197,7 +204,6 @@
                 }
             }
 
-            // Kiểm tra xem dòng 10 có dữ liệu cũ thực tế hay không
             let hasPrevData = false;
             for (let k = 0; k < previousResults.length; k++) {
                 const val = previousResults[k]?.trim();
@@ -229,7 +235,7 @@
                     const matchResultIdx = resultHeaders.findIndex(h => h.trim().toLowerCase() === columnName.toLowerCase());
                     if (matchResultIdx === -1) continue;
 
-                    // 1. Tính toán điểm số Hiện Tại (Dòng 2)
+                    // 1. Hiện tại (Dòng 2)
                     let correctValue = officialResults[matchResultIdx]?.trim() || '---';
                     if (correctValue !== '' && correctValue !== '---') {
                         if (userValue.toLowerCase() === correctValue.toLowerCase()) {
@@ -239,7 +245,7 @@
                         }
                     }
 
-                    // 2. Tính toán điểm số Quá Khứ (Dòng 10)
+                    // 2. Quá Khứ (Dòng 10)
                     let prevCorrectValue = previousResults[matchResultIdx]?.trim() || '---';
                     if (prevCorrectValue !== '' && prevCorrectValue !== '---') {
                         if (userValue.toLowerCase() === prevCorrectValue.toLowerCase()) {
@@ -258,7 +264,7 @@
                 const bg = avatarColors[i % avatarColors.length];
 
                 calculatedPlayers.push({
-                    id: i, // ID chính là số thứ tự dòng trong Sheet (i nhỏ hơn nghĩa là nộp sớm hơn)
+                    id: i, 
                     name: nickname,
                     matches: correctMatches,
                     totalMatches: totalAvailableMatches,
@@ -272,17 +278,16 @@
                 });
             }
 
-            // --- TÍNH TOÁN THỨ HẠNG CŨ DỰA TRÊN DÒNG 10 (ƯU TIÊN: ĐIỂM -> TRẬN -> ID DÒNG TĂNG DẦN) ---
             if (hasPrevData) {
                 let prevSorted = [...calculatedPlayers].sort((a, b) => {
                     if (b.prevScore !== a.prevScore) return b.prevScore - a.prevScore;
                     if (b.prevMatches !== a.prevMatches) return b.prevMatches - a.prevMatches;
-                    return a.id - b.id; // Hàng nhỏ hơn (nộp sớm hơn) đứng trước
+                    return a.id - b.id;
                 });
                 
                 let prevRanksMap = {};
                 prevSorted.forEach((p, idx) => {
-                    prevRanksMap[p.name] = idx + 1; // Vì ID dòng là duy nhất nên phân cấp hạng tuần tự tuyệt đối
+                    prevRanksMap[p.name] = idx + 1;
                 });
                 
                 calculatedPlayers.forEach(p => {
@@ -301,29 +306,27 @@
 
     function initData() {
         fetchPlayersData();
-        setInterval(fetchPlayersData, 300000); // 5 phút tự động tải lại dữ liệu một lần
+        setInterval(fetchPlayersData, 300000); 
     }
 
     function getRankChangeHTML(change) {
         if (change > 0) {
-            return `<span class="text-emerald-400 text-xs font-sans font-bold inline-flex items-center gap-0.5 ml-1" title="Tăng ${change} bậc"><i class="fa-solid fa-caret-up"></i>${change}</span>`;
+            return `<span class="text-emerald-400 text-xs font-sans font-bold inline-flex items-center gap-0.5 ml-1 animate-pulse" title="Tăng ${change} bậc"><i class="fa-solid fa-caret-up"></i>${change}</span>`;
         } else if (change < 0) {
             return `<span class="text-red-400 text-xs font-sans font-bold inline-flex items-center gap-0.5 ml-1" title="Giảm ${Math.abs(change)} bậc"><i class="fa-solid fa-caret-down"></i>${Math.abs(change)}</span>`;
         }
-        return `<span class="text-slate-500 text-xs font-sans ml-1" title="Không đổi"><i class="fa-solid fa-minus text-[10px]"></i></span>`;
+        return `<span class="text-slate-500 text-xs font-sans ml-1"><i class="fa-solid fa-minus text-[10px]"></i></span>`;
     }
 
     function renderLeaderboard() {
         let sortedPlayers = [...players];
         
-        // SẮP XẾP HIỆN TẠI: ƯU TIÊN ĐIỂM MỚI -> TRẬN THẮNG MỚI -> ID DÒNG NHỎ NHẤT (NỘP TRƯỚC)
         sortedPlayers.sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
             if (b.matches !== a.matches) return b.matches - a.matches;
-            return a.id - b.id; // Ai nộp trước (dòng nằm trên trong Sheet) xếp hạng cao hơn
+            return a.id - b.id;
         });
         
-        // Tính toán thứ hạng hiện tại và mức độ tăng giảm bậc chính xác
         let rankedData = sortedPlayers.map((p, idx) => {
             const currentRank = idx + 1;
             let rankChange = 0;
@@ -376,9 +379,10 @@
             let shimmerLayer = "";
             
             if(player.actualRank === 1) {
-                cardStyle = "bg-gradient-to-b from-amber-950/80 to-slate-950/95 border-amber-400 glow-gold-brilliant scale-105 md:scale-110 z-10 p-8";
-                badgeStyle = "from-amber-500 to-yellow-400 text-slate-950";
-                rankLabel = `<i class="fa-solid fa-crown text-base animate-pulse"></i> Top 1 Vinh Danh`;
+                // Thêm hiệu ứng vinh quang rực rỡ bậc nhất cho TOP 1 khi bứt top hoặc giữ ngôi vương
+                cardStyle = "bg-gradient-to-b from-amber-950/90 to-slate-950/95 border-amber-400 glow-gold-brilliant scale-105 md:scale-110 z-10 p-8";
+                badgeStyle = "from-amber-500 to-yellow-400 text-slate-950 shadow-yellow-500/50 shadow-md";
+                rankLabel = `<i class="fa-solid fa-crown text-base text-red-600 animate-bounce"></i> <span class="tracking-widest">VƯƠNG GIẢ TOP 1</span> <i class="fa-solid fa-star text-xs text-yellow-300 animate-spin"></i>`;
                 shimmerLayer = `<div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none z-0"><div class="top1-shimmer"></div></div>`;
             } else if (player.actualRank === 2) {
                 cardStyle = "bg-slate-950/90 border-slate-400 glow-silver p-6";
@@ -391,7 +395,7 @@
             }
 
             const div = document.createElement('div');
-            div.className = `backdrop-blur-md border-2 rounded-2xl text-center transform hover:-translate-y-2 transition-all duration-300 relative group ${cardStyle}`;
+            div.className = `podium-item backdrop-blur-md border-2 rounded-2xl text-center transform hover:-translate-y-2 transition-all duration-300 relative group ${cardStyle}`;
             div.innerHTML = `
                 ${shimmerLayer}
                 <div class="absolute -top-5 left-1/2 -translate-x-1/2 font-bold px-4 py-1 rounded-full text-xs font-oswald uppercase tracking-wider shadow-lg bg-gradient-to-r ${badgeStyle} z-10 whitespace-nowrap">
@@ -421,17 +425,34 @@
 
     function renderTableRows(listData, isEmpty) {
         const rankingList = document.getElementById('rankingList');
-        rankingList.innerHTML = '';
-
+        
         if (isEmpty) {
             rankingList.innerHTML = `<div class="text-center py-10 text-slate-400 italic">Không tìm thấy thành viên nào khớp dữ liệu...</div>`;
+            rankingList.style.height = "auto";
             return;
         }
 
-        listData.forEach(player => {
-            const div = document.createElement('div');
-            div.className = "grid grid-cols-12 gap-2 sm:gap-4 px-6 py-4 items-center bg-slate-900/50 hover:bg-yellow-400/10 transition-all duration-200 group";
-            div.innerHTML = `
+        // Đo chiều cao mỗi hàng chuẩn để tính toán vị trí chuyển động trượt lên (72px)
+        const rowHeight = 72; 
+        rankingList.style.height = `${listData.length * rowHeight}px`;
+
+        listData.forEach((player, index) => {
+            let rowDiv = document.getElementById(`player-row-${player.name.replace(/\s+/g, '-')}`);
+            
+            // Nếu hàng chưa có trong DOM, tạo mới hoàn toàn
+            if (!rowDiv) {
+                rowDiv = document.createElement('div');
+                rowDiv.id = `player-row-${player.name.replace(/\s+/g, '-')}`;
+                rowDiv.className = "rank-item absolute left-0 right-0 grid grid-cols-12 gap-2 sm:gap-4 px-6 py-4 items-center bg-slate-900/50 hover:bg-yellow-400/10 border-b border-slate-800/40 group";
+                rankingList.appendChild(rowDiv);
+            }
+
+            // Đặt vị trí top động để kích hoạt hiệu ứng di chuyển (Transition Transform) khi thay hạng
+            rowDiv.style.transform = `translateY(${index * rowHeight}px)`;
+            rowDiv.style.height = `${rowHeight}px`;
+
+            // Cập nhật nội dung bên trong hàng
+            rowDiv.innerHTML = `
                 <div class="col-span-2 sm:col-span-1 text-center font-oswald font-bold text-lg text-slate-400 flex items-center justify-center gap-1">
                     <span>${player.actualRank < 10 ? '0' + player.actualRank : player.actualRank}</span>
                     ${getRankChangeHTML(player.rankChange)}
@@ -452,12 +473,19 @@
                     ${player.score.toLocaleString()}
                 </div>
                 
-                <div class="col-span-12 flex justify-between items-center sm:hidden pt-2 border-t border-slate-800/50 mt-1 text-xs text-slate-400">
+                <div class="col-span-12 flex justify-between items-center sm:hidden pt-1 border-t border-slate-800/20 text-[10px] text-slate-400">
                     <span>Tỉ lệ: <b class="text-amber-400">${player.winRate}%</b></span>
                     <span>Tổng điểm: <b class="text-yellow-400">${player.score} Điểm</b></span>
                 </div>
             `;
-            rankingList.appendChild(div);
+        });
+
+        // Xóa những hàng của người chơi không còn nằm trong danh sách tìm kiếm/lọc hiện tại
+        const validIds = listData.map(player => `player-row-${player.name.replace(/\s+/g, '-')}`);
+        Array.from(rankingList.children).forEach(child => {
+            if (child.id && !validIds.includes(child.id)) {
+                child.remove();
+            }
         });
     }
 
